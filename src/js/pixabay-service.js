@@ -19,7 +19,7 @@ export default class PixabayApiService {
       orientation: 'horizontal',
       safesearch: true,
       page: this.page,
-      per_page: 20,
+      per_page: 10,
     };
 
     return axios

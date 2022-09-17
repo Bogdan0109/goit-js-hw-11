@@ -57,9 +57,10 @@ function onSearch(e) {
 function onLoadMore(e) {
   pixabayApiService.axiosArticles().then(hits => {
     pixabayApiService.plusHitsLength(hits.length);
-
+    autoScroll();
     if (pixabayApiService.sumHitsLength === pixabayApiService.totalHits) {
       loadMoreBtnDisplay('none');
+
       return Notify.warning(
         "We're sorry, but you've reached the end of search results."
       );
@@ -78,4 +79,15 @@ function clearHitsMarkup() {
 
 function loadMoreBtnDisplay(display) {
   refs.loadMoreBtn.style.display = `${display}`;
+}
+
+function autoScroll() {
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
+
+  window.scrollBy({
+    top: cardHeight * 2,
+    behavior: 'smooth',
+  });
 }
