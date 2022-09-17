@@ -8,6 +8,7 @@ export default class PixabayApiService {
     this.searchQuery = '';
     this.page = 1;
     this.totalHits = '';
+    this.sumHitsLength = 0;
   }
 
   axiosArticles() {
@@ -18,7 +19,7 @@ export default class PixabayApiService {
       orientation: 'horizontal',
       safesearch: true,
       page: this.page,
-      per_page: 5,
+      per_page: 20,
     };
 
     return axios
@@ -26,6 +27,7 @@ export default class PixabayApiService {
         params: queryParams,
       })
       .then(({ data }) => {
+        this.newHits(data.totalHits);
         this.incrementPage();
         return data.hits;
       });
@@ -33,6 +35,10 @@ export default class PixabayApiService {
 
   incrementPage() {
     this.page += 1;
+  }
+
+  plusHitsLength(hitsLength) {
+    this.sumHitsLength += hitsLength;
   }
 
   resetPage() {
@@ -45,5 +51,9 @@ export default class PixabayApiService {
 
   set query(newQuery) {
     this.searchQuery = newQuery;
+  }
+
+  newHits(newHits) {
+    this.totalHits = newHits;
   }
 }
