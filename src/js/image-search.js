@@ -11,7 +11,7 @@ const refs = {
 };
 const pixabayApiService = new PixabayApiService();
 
-new SimpleLightbox('refs.gallery a');
+const gallery = new SimpleLightbox('.gallery a');
 // gallery.on('show.simplelightbox', function () {
 //   refresh();
 // });
@@ -57,7 +57,7 @@ function onSearch(e) {
 function onLoadMore(e) {
   pixabayApiService.axiosArticles().then(hits => {
     pixabayApiService.plusHitsLength(hits.length);
-    autoScroll();
+
     if (pixabayApiService.sumHitsLength === pixabayApiService.totalHits) {
       loadMoreBtnDisplay('none');
 
@@ -66,11 +66,13 @@ function onLoadMore(e) {
       );
     }
     appendHitsMarkup(hits);
+    autoScroll();
   });
 }
 
 function appendHitsMarkup(hits) {
   refs.gallery.insertAdjacentHTML('beforeend', createGalleryMarkup(hits));
+  gallery.refresh();
 }
 
 function clearHitsMarkup() {

@@ -11,7 +11,7 @@ export default class PixabayApiService {
     this.sumHitsLength = 0;
   }
 
-  axiosArticles() {
+  async axiosArticles() {
     const queryParams = {
       key: API_KAY,
       q: this.searchQuery,
@@ -22,7 +22,7 @@ export default class PixabayApiService {
       per_page: 10,
     };
 
-    return axios
+    return await axios
       .get(BASE_URL, {
         params: queryParams,
       })
