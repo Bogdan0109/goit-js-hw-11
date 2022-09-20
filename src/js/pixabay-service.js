@@ -19,18 +19,19 @@ export default class PixabayApiService {
       orientation: 'horizontal',
       safesearch: true,
       page: this.page,
-      per_page: 10,
+      per_page: 40,
     };
 
-    return await axios
+    const response = await axios
       .get(BASE_URL, {
         params: queryParams,
       })
       .then(({ data }) => {
         this.newHits(data.totalHits);
         this.incrementPage();
-        return data.hits;
+        return data;
       });
+    return response;
   }
 
   incrementPage() {

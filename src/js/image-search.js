@@ -12,15 +12,14 @@ const refs = {
 const pixabayApiService = new PixabayApiService();
 
 const gallery = new SimpleLightbox('.gallery a');
-// gallery.on('show.simplelightbox', function () {
-//   refresh();
-// });
 
 refs.form.addEventListener('submit', onSearch);
 refs.loadMoreBtn.addEventListener('click', onLoadMore);
 
-function onSearch(e) {
+async function onSearch(e) {
   e.preventDefault();
+
+  scrollToTop();
 
   pixabayApiService.query = e.currentTarget.elements.searchQuery.value.trim();
 
@@ -32,32 +31,49 @@ function onSearch(e) {
     loadMoreBtnDisplay('none');
     return;
   }
-
-  loadMoreBtnDisplay('block');
-  pixabayApiService.resetPage();
-  pixabayApiService
-    .axiosArticles()
-    .then(hits => {
-      clearHitsMarkup();
-      appendHitsMarkup(hits);
-      Notify.success(`Hooray! We found ${pixabayApiService.totalHits} images.`);
-      pixabayApiService.plusHitsLength(hits.length);
-    })
-    .catch(error => {
-      Notify.failure(
-        'Sorry, there are no images matching your search query. Please try again.'
-      );
-      console.log('catch сработал');
-      console.error(error);
-    });
-
   e.currentTarget.reset();
+  loadMoreBtnDisplay('block');
+
+  pixabayApiService.resetPage();
+
+  try {
+    const { hits, totalHits } = await pixabayApiService.axiosArticles();
+    clearHitsMarkup();
+    appendHitsMarkup(hits);
+    Notify.success(`Hooray! We found ${totalHits} images.`);
+    pixabayApiService.plusHitsLength(hits.length);
+    // pixabayApiService
+    //   .axiosArticles()
+    //   .then(hits => {
+    //     clearHitsMarkup();
+    //     appendHitsMarkup(hits);
+    //     Notify.success(
+    //       `Hooray! We found ${pixabayApiService.totalHits} images.`
+    //     );
+    //     pixabayApiService.plusHitsLength(hits.length);
+    //   })
+    // .catch(error => {
+    //   Notify.failure(
+    //     'Sorry, there are no images matching your search query. Please try again.'
+    //   );
+    //   console.log('catch сработал');
+    //   console.error(error);
+    // });
+  } catch {
+    Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
+    console.log('catch сработал');
+    console.error(error);
+  }
 }
 
-function onLoadMore(e) {
-  pixabayApiService.axiosArticles().then(hits => {
+async function onLoadMore(e) {
+  try {
+    const { hits, totalHits } = await pixabayApiService.axiosArticles();
     pixabayApiService.plusHitsLength(hits.length);
-
+    appendHitsMarkup(hits);
+    autoScroll();
     if (pixabayApiService.sumHitsLength === pixabayApiService.totalHits) {
       loadMoreBtnDisplay('none');
 
@@ -65,9 +81,25 @@ function onLoadMore(e) {
         "We're sorry, but you've reached the end of search results."
       );
     }
-    appendHitsMarkup(hits);
-    autoScroll();
-  });
+  } catch {
+    Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
+    console.log('catch сработал');
+    console.error(error);
+  }
+  // pixabayApiService.axiosArticles().then(hits => {
+  // pixabayApiService.plusHitsLength(hits.length);
+  // appendHitsMarkup(hits);
+  // autoScroll();
+  // if (pixabayApiService.sumHitsLength === pixabayApiService.totalHits) {
+  //   loadMoreBtnDisplay('none');
+
+  //   return Notify.warning(
+  //     "We're sorry, but you've reached the end of search results."
+  //   );
+  // }
+  // });
 }
 
 function appendHitsMarkup(hits) {
@@ -90,6 +122,13 @@ function autoScroll() {
 
   window.scrollBy({
     top: cardHeight * 2,
+    behavior: 'smooth',
+  });
+}
+
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
     behavior: 'smooth',
   });
 }
