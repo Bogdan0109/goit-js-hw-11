@@ -7,7 +7,6 @@ export default class PixabayApiService {
   constructor() {
     this.searchQuery = '';
     this.page = 1;
-    this.totalHits = '';
     this.sumHitsLength = 0;
   }
 
@@ -22,16 +21,11 @@ export default class PixabayApiService {
       per_page: 40,
     };
 
-    const response = await axios
-      .get(BASE_URL, {
-        params: queryParams,
-      })
-      .then(({ data }) => {
-        this.newHits(data.totalHits);
-        this.incrementPage();
-        return data;
-      });
-    return response;
+    const response = await axios.get(BASE_URL, {
+      params: queryParams,
+    });
+    this.incrementPage();
+    return response.data;
   }
 
   incrementPage() {
@@ -52,9 +46,5 @@ export default class PixabayApiService {
 
   set query(newQuery) {
     this.searchQuery = newQuery;
-  }
-
-  newHits(newHits) {
-    this.totalHits = newHits;
   }
 }
